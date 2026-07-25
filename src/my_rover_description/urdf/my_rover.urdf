@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+
+<robot name="my_rover">
+
+  <!-- ================= BASE ================= -->
+
+  <link name="base_link"/>
+
+  <!-- ================= LEFT WHEEL ================= -->
+
+  <link name="left_wheel"/>
+
+  <joint name="left_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="left_wheel"/>
+    <origin xyz="0 0.155 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <!-- ================= RIGHT WHEEL ================= -->
+
+  <link name="right_wheel"/>
+
+  <joint name="right_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="right_wheel"/>
+    <origin xyz="0 -0.155 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <!-- ================= LIDAR ================= -->
+
+  <link name="lidar_link"/>
+
+  <joint name="lidar_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="lidar_link"/>
+    <origin xyz="0 0 0.08" rpy="0 0 0"/>
+  </joint>
+
+</robot>
