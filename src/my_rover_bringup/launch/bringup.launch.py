@@ -56,8 +56,26 @@ def generate_launch_description():
         parameters=[slam_config],
     )
 
+    # ---------- Static TF Workaround (Lidar Frame Bridge) ----------
+
+    static_tf_pub = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        name="lidar_frame_bridge",
+        output="screen",
+        arguments=[
+            "0", "0", "0", "0", "0", "0",
+            "lidar_link",
+            "my_rover/lidar_link/lidar",
+        ],
+        parameters=[
+            {"use_sim_time": True},
+        ],
+    )
+
     return LaunchDescription([
         robot_state_publisher,
         bridge,
+        static_tf_pub,
         
     ])
