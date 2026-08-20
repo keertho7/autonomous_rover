@@ -49,13 +49,13 @@ def generate_launch_description():
     )
 # "/tf_static@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V",
     # ---------- SLAM ----------
-    """slam = Node(
+    slam = Node(
         package="slam_toolbox",
         executable="async_slam_toolbox_node",
         name="slam_toolbox",
         output="screen",
         parameters=[slam_config],
-    )"""
+    )
 
     # ---------- Static TF Workaround (Lidar Frame Bridge) ----------
 
@@ -78,5 +78,5 @@ def generate_launch_description():
         robot_state_publisher,
         bridge,
         static_tf_pub,
-        
+        slam
     ])
