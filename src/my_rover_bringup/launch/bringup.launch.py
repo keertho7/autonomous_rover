@@ -43,18 +43,19 @@ def generate_launch_description():
             "/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan",
             "/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry",
             "/tf@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V",
+            "/cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist",
            
         ],
     )
 # "/tf_static@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V",
     # ---------- SLAM ----------
-    slam = Node(
+    """slam = Node(
         package="slam_toolbox",
         executable="async_slam_toolbox_node",
         name="slam_toolbox",
         output="screen",
         parameters=[slam_config],
-    )
+    )"""
 
     # ---------- Static TF Workaround (Lidar Frame Bridge) ----------
 

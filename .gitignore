@@ -2,4 +2,6 @@ build/
 install/
 log/
 *_backup.sdf
-*_bck.sdf
+*_bck.sdfframes_*.gv
+frames_*.pdf
+src.zip
