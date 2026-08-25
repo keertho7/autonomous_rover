@@ -8,7 +8,7 @@
 
   <!-- ================= CHASSIS ================= -->
 
-  <link name="chassis">
+  <link name="base_link">
 
     <inertial>
       <mass>5.0</mass>
@@ -142,7 +142,7 @@
 
   <joint name="left_wheel_joint" type="revolute">
 
-    <parent>chassis</parent>
+    <parent>base_link</parent>
     <child>left_wheel</child>
 
     <pose>0 0.155 0 0 0 0</pose>
@@ -165,7 +165,7 @@
 
   <joint name="right_wheel_joint" type="revolute">
 
-    <parent>chassis</parent>
+    <parent>base_link</parent>
     <child>right_wheel</child>
 
     <pose>0 -0.155 0 0 0 0</pose>
@@ -280,7 +280,7 @@
 
   <joint name="lidar_joint" type="fixed">
 
-    <parent>chassis</parent>
+    <parent>base_link</parent>
     <child>lidar_link</child>
 
   </joint>
@@ -308,7 +308,7 @@
   </plugin>
 
     <!-- ================= POSE PUBLISHER ================= -->
-
+<!--
   <plugin
       filename="gz-sim-pose-publisher-system"
       name="gz::sim::systems::PosePublisher">
@@ -319,9 +319,10 @@
     <publish_visual_pose>false</publish_visual_pose>
     <publish_nested_model_pose>true</publish_nested_model_pose>
     <use_pose_vector_msg>true</use_pose_vector_msg>
+    
 
   </plugin>
-
+-->
 </model>
 
 </sdf>
