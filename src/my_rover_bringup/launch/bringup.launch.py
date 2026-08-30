@@ -1,26 +1,21 @@
-from launch import LaunchDescription
-from launch_ros.actions import Node
-from ament_index_python.packages import get_package_share_directory
-
 import os
-
+from ament_index_python.packages import get_package_share_directory
+from launch import LaunchDescription
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch_ros.actions import Node
 
 def generate_launch_description():
 
-    # ---------- Robot Description ----------
+   # ---------- Package Paths ----------
 
-    urdf = os.path.join(
-        get_package_share_directory("my_rover_description"),
-        "urdf",
-        "my_rover.urdf",
-    )
+    pkg_description = get_package_share_directory("my_rover_description")
+    pkg_bringup = get_package_share_directory("my_rover_bringup")
+    pkg_slam = get_package_share_directory("slam_toolbox")
 
-     
-    slam_config = os.path.join(
-        get_package_share_directory("my_rover_bringup"),
-        "config",
-        "slam.yaml",
-    )
+    urdf = os.path.join(pkg_description, "urdf", "my_rover.urdf")
+    slam_config = os.path.join(pkg_bringup, "config", "slam.yaml")
+    bridge_config = os.path.join(pkg_bringup, "config", "bridge.yaml")
 
     robot_state_publisher = Node(
         package="robot_state_publisher",
@@ -32,51 +27,31 @@ def generate_launch_description():
         ],
     )
 
-    # ---------- Gazebo Bridge ----------
-
     bridge = Node(
         package="ros_gz_bridge",
         executable="parameter_bridge",
         output="screen",
-        arguments=[
-            "/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock",
-            "/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan",
-            "/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry",
-            "/tf@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V",
-            "/cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist",
-           
-        ],
-    )
-# "/tf_static@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V",
-    # ---------- SLAM ----------
-    slam = Node(
-        package="slam_toolbox",
-        executable="async_slam_toolbox_node",
-        name="slam_toolbox",
-        output="screen",
-        parameters=[slam_config],
-    )
-
-    # ---------- Static TF Workaround (Lidar Frame Bridge) ----------
-
-    static_tf_pub = Node(
-        package="tf2_ros",
-        executable="static_transform_publisher",
-        name="lidar_frame_bridge",
-        output="screen",
-        arguments=[
-            "0", "0", "0", "0", "0", "0",
-            "lidar_link",
-            "my_rover/lidar_link/lidar",
-        ],
         parameters=[
+            {"config_file": bridge_config},
             {"use_sim_time": True},
         ],
     )
+# "/tf_static@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V",
+    # ---------- SLAM Toolbox (Automated Lifecycle) ----------
 
+    slam = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(pkg_slam, "launch", "online_async_launch.py")
+        ),
+        launch_arguments={
+            "slam_params_file": slam_config,
+            "use_sim_time": "true",
+        }.items(),
+    )
+
+   
     return LaunchDescription([
         robot_state_publisher,
         bridge,
-        static_tf_pub,
         slam
     ])

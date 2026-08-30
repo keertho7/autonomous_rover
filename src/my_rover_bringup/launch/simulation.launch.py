@@ -1,39 +1,25 @@
-from launch import LaunchDescription
-from launch.actions import ExecuteProcess, TimerAction, IncludeLaunchDescription
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from ament_index_python.packages import get_package_share_directory
-
 import os
+from ament_index_python.packages import get_package_share_directory
+from launch import LaunchDescription
+from launch.actions import ExecuteProcess, IncludeLaunchDescription, TimerAction
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 
 def generate_launch_description():
 
-    rover_ws = os.path.expanduser("~/rover_ws")
+    # ---------- Package Paths ----------
 
-    world = os.path.join(
-        rover_ws,
-        "src",
-        "my_rover",
-        "rover_world.sdf",
-    )
+    pkg_bringup = get_package_share_directory("my_rover_bringup")
+    pkg_description = get_package_share_directory("my_rover_description")
 
-    model = os.path.join(
-        rover_ws,
-        "src",
-        "my_rover",
-        "model.sdf",
-    )
-
-    bringup = os.path.join(
-        get_package_share_directory("my_rover_bringup"),
-        "launch",
-        "bringup.launch.py",
-    )
+    world = os.path.join(pkg_description, "worlds", "rover_world.sdf")
+    model = os.path.join(pkg_description, "models", "model.sdf")
+    bringup = os.path.join(pkg_bringup, "launch", "bringup.launch.py")
 
     # ---------- Gazebo ----------
 
     gazebo = ExecuteProcess(
-        cmd=["gz", "sim", world],
+        cmd=["gz", "sim", "-r", world],
         output="screen",
     )
 
@@ -41,15 +27,10 @@ def generate_launch_description():
 
     spawn_rover = ExecuteProcess(
         cmd=[
-            "gz", "service",
-            "-s", "/world/empty/create",
-            "--reqtype", "gz.msgs.EntityFactory",
-            "--reptype", "gz.msgs.Boolean",
-            "--timeout", "300",
-            "--req",
-            f'sdf_filename: "{model}", '
-            'name: "my_rover", '
-            'allow_renaming: false',
+            "ros2", "run", "ros_gz_sim", "create",
+            "-file", model,
+            "-name", "my_rover",
+            "-allow_renaming", "false",
         ],
         output="screen",
     )
@@ -60,33 +41,7 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(bringup)
     )
 
-    # ---------- Configure SLAM ----------
-
-    configure_slam = ExecuteProcess(
-        cmd=[
-            "ros2",
-            "lifecycle",
-            "set",
-            "/slam_toolbox",
-            "configure",
-        ],
-        output="screen",
-    )
-
-    # ---------- Activate SLAM ----------
-
-    activate_slam = ExecuteProcess(
-        cmd=[
-            "ros2",
-            "lifecycle",
-            "set",
-            "/slam_toolbox",
-            "activate",
-        ],
-        output="screen",
-    )
-
-    # ---------- RViz ----------
+    # ---------- RViz2 ----------
 
     rviz = ExecuteProcess(
         cmd=["rviz2"],
@@ -94,32 +49,19 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-
         gazebo,
 
-        # Wait for Gazebo, then spawn rover
+        # Wait for Gazebo to start before spawning
         TimerAction(
-            period=8.0,
+            period=3.0,
             actions=[spawn_rover],
         ),
 
         bringup_launch,
 
-        # Configure SLAM
-        TimerAction(
-            period=10.0,
-            actions=[configure_slam],
-        ),
-
-        # Activate SLAM
-        TimerAction(
-            period=12.0,
-            actions=[activate_slam],
-        ),
-
         # Start RViz
         TimerAction(
-            period=9.0,
+            period=5.0,
             actions=[rviz],
         ),
     ])

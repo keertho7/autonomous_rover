@@ -5,3 +5,6 @@ log/
 *_bck.sdfframes_*.gv
 frames_*.pdf
 src.zip
+*.gv
+*~
+*.sdf_bck

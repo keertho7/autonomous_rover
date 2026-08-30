@@ -25,6 +25,16 @@
           <size>0.35 0.25 0.08</size>
         </box>
       </geometry>
+      <surface>
+        <contact>
+          <ode>
+            <kp>10000000.0</kp>
+            <kd>1.0</kd>
+            <max_vel>0.01</max_vel>
+            <min_depth>0.001</min_depth>
+          </ode>
+        </contact>
+      </surface>
     </collision>
 
     <visual name="visual">
@@ -37,6 +47,45 @@
       <material>
         <ambient>0.15 0.15 0.15 1</ambient>
         <diffuse>0.15 0.15 0.15 1</diffuse>
+      </material>
+    </visual>
+
+    <!-- ================= CASTER WHEEL ================= -->
+    <collision name="caster_collision">
+      <pose>-0.12 0 -0.04 0 0 0</pose>
+      <geometry>
+        <sphere>
+          <radius>0.02</radius>
+        </sphere>
+      </geometry>
+      <surface>
+        <friction>
+          <ode>
+            <mu>0.0</mu>
+            <mu2>0.0</mu2>
+          </ode>
+        </friction>
+        <contact>
+          <ode>
+            <kp>10000000.0</kp>
+            <kd>1.0</kd>
+            <max_vel>0.01</max_vel>
+            <min_depth>0.001</min_depth>
+          </ode>
+        </contact>
+      </surface>
+    </collision>
+
+    <visual name="caster_visual">
+      <pose>-0.12 0 -0.04 0 0 0</pose>
+      <geometry>
+        <sphere>
+          <radius>0.02</radius>
+        </sphere>
+      </geometry>
+      <material>
+        <ambient>0.2 0.2 0.2 1</ambient>
+        <diffuse>0.2 0.2 0.2 1</diffuse>
       </material>
     </visual>
 
@@ -68,6 +117,24 @@
         </cylinder>
       </geometry>
 
+      <surface>
+        <friction>
+          <ode>
+            <mu>10.0</mu>
+            <mu2>10.0</mu2>
+            <frictional_dir>1 0 0</frictional_dir>
+          </ode>
+        </friction>
+        <contact>
+          <ode>
+            <kp>10000000.0</kp>
+            <kd>1.0</kd>
+            <max_vel>0.01</max_vel>
+            <min_depth>0.001</min_depth>
+          </ode>
+        </contact>
+      </surface>
+
     </collision>
 
     <visual name="visual">
@@ -87,7 +154,6 @@
       </material>
 
     </visual>
-
   </link>
 
   <!-- ================= RIGHT WHEEL ================= -->
@@ -115,6 +181,24 @@
           <length>0.03</length>
         </cylinder>
       </geometry>
+
+      <surface>
+        <friction>
+          <ode>
+            <mu>10.0</mu>
+            <mu2>10.0</mu2>
+            <frictional_dir>1 0 0</frictional_dir>
+          </ode>
+        </friction>
+        <contact>
+          <ode>
+            <kp>10000000.0</kp>
+            <kd>1.0</kd>
+            <max_vel>0.01</max_vel>
+            <min_depth>0.001</min_depth>
+          </ode>
+        </contact>
+      </surface>
 
     </collision>
 
@@ -145,7 +229,7 @@
     <parent>base_link</parent>
     <child>left_wheel</child>
 
-    <pose>0 0.155 0 0 0 0</pose>
+    <pose>0 0 0 0 0 0</pose>
 
     <axis>
       <xyz>0 1 0</xyz>
@@ -168,7 +252,7 @@
     <parent>base_link</parent>
     <child>right_wheel</child>
 
-    <pose>0 -0.155 0 0 0 0</pose>
+    <pose>0 0 0 0 0 0</pose>
 
     <axis>
       <xyz>0 1 0</xyz>
@@ -238,7 +322,8 @@
       <update_rate>10</update_rate>
 
       <topic>scan</topic>
-
+      <!-- Force Gazebo to use lidar_link instead of scoping it to my_rover/lidar_link/lidar -->
+      <gz_frame_id>lidar_link</gz_frame_id>
 
       <ray>
 
@@ -260,7 +345,7 @@
 
         <range>
 
-          <min>0.10</min>
+          <min>0.2</min>
 
           <max>10.0</max>
 
@@ -282,6 +367,7 @@
 
     <parent>base_link</parent>
     <child>lidar_link</child>
+    <pose>0 0 0 0 0 0</pose>
 
   </joint>
   <!-- ================= DIFF DRIVE ================= -->
