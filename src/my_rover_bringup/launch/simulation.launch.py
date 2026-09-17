@@ -11,10 +11,12 @@ def generate_launch_description():
 
     pkg_bringup = get_package_share_directory("my_rover_bringup")
     pkg_description = get_package_share_directory("my_rover_description")
+    pkg_slam = get_package_share_directory("slam_toolbox")
 
     world = os.path.join(pkg_description, "worlds", "rover_world.sdf")
     model = os.path.join(pkg_description, "models", "model.sdf")
     bringup = os.path.join(pkg_bringup, "launch", "bringup.launch.py")
+    slam_config = os.path.join(pkg_bringup, "config", "slam.yaml")
 
     # ---------- Gazebo ----------
 
@@ -41,6 +43,19 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(bringup)
     )
 
+
+    # ---------- SLAM Toolbox (Automated Lifecycle) ----------
+
+    slam = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(pkg_slam, "launch", "online_async_launch.py")
+        ),
+        launch_arguments={
+            "slam_params_file": slam_config,
+            "use_sim_time": "true",
+        }.items(),
+    )
+
     # ---------- RViz2 ----------
 
     rviz = ExecuteProcess(
@@ -50,18 +65,8 @@ def generate_launch_description():
 
     return LaunchDescription([
         gazebo,
-
-        # Wait for Gazebo to start before spawning
-        TimerAction(
-            period=3.0,
-            actions=[spawn_rover],
-        ),
-
         bringup_launch,
-
-        # Start RViz
-        TimerAction(
-            period=5.0,
-            actions=[rviz],
-        ),
+        slam,
+        TimerAction(period=3.0, actions=[spawn_rover]),
+        TimerAction(period=5.0, actions=[rviz]),
     ])
